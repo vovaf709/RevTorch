@@ -102,7 +102,8 @@ class ReversibleBlock(nn.Module):
             self._set_seed('g')
 
             prev_flags = set_running_stats(self.g_block, False)
-            gy1 = self.g_block(y1)
+            with torch.cuda.amp.autocast():
+                gy1 = self.g_block(y1)
             set_running_stats(self.g_block, prev_flags)
 
             # Use autograd framework to differentiate the calculation. The
@@ -125,7 +126,8 @@ class ReversibleBlock(nn.Module):
             self._set_seed('f')
 
             prev_flags = set_running_stats(self.f_block, False)
-            fx2 = self.f_block(x2)
+            with torch.cuda.amp.autocast():
+                fx2 = self.f_block(x2)
             set_running_stats(self.f_block, prev_flags)
 
             # Use autograd framework to differentiate the calculation. The
