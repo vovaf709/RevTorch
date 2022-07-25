@@ -101,8 +101,10 @@ class ReversibleBlock(nn.Module):
         with torch.enable_grad():
             self._set_seed('g')
 
+            g_dtype = next(self.g_block.parameters()).dtype
+
             prev_flags = set_running_stats(self.g_block, False)
-            with torch.cuda.amp.autocast():
+            with torch.cuda.amp.autocast(enabled = g_dtype != y1.dtype):
                 gy1 = self.g_block(y1)
             set_running_stats(self.g_block, prev_flags)
 
@@ -125,8 +127,10 @@ class ReversibleBlock(nn.Module):
             x2.requires_grad = True
             self._set_seed('f')
 
+            f_dtype = next(self.f_block.parameters()).dtype
+
             prev_flags = set_running_stats(self.f_block, False)
-            with torch.cuda.amp.autocast():
+            with torch.cuda.amp.autocast(enabled = f_dtype != x2.dtype):
                 fx2 = self.f_block(x2)
             set_running_stats(self.f_block, prev_flags)
 
